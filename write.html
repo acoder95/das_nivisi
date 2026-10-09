@@ -10,29 +10,78 @@
         h2 { text-align: center; color: #333; }
         label { display: block; margin-top: 12px; color: #555; font-weight: bold; }
         input, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; box-sizing: border-box; font-family: inherit; }
-        textarea { height: 200px; resize: vertical; }
-        button.main-btn { width: 100%; padding: 12px; margin-top: 15px; background: #2ea44f; color: #fff; border: none; border-radius: 8px; font-size: 17px; cursor: pointer; font-weight: bold; }
-        button.main-btn:disabled { background: #aaa; cursor: not-allowed; }
-        #status { text-align: center; margin-top: 15px; font-weight: bold; }
+        textarea { height: 180px; resize: vertical; }
+        .main-btn { width: 100%; padding: 12px; margin-top: 15px; background: #2ea44f; color: #fff; border: none; border-radius: 8px; font-size: 17px; cursor: pointer; font-weight: bold; }
+        .main-btn:disabled { background: #aaa; cursor: not-allowed; }
+        #status { text-align: center; margin-top: 12px; font-weight: bold; }
         .token-box { background: #fffbe6; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; border: 1px solid #ffe58f; }
-        .back { display:block; text-align:center; margin-top:15px; color:#2ea44f; text-decoration: none; }
-        .edit-banner { background: #e3f2fd; color: #1565c0; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 15px; font-weight: bold; }
+        .back { display:block; text-align:center; margin-top:15px; color:#2ea44f; text-decoration: none; font-weight: bold; }
+        .edit-banner { background: #e3f2fd; color: #1565c0; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 12px; font-weight: bold; }
+        .cancel-edit { display: none; text-align: center; margin-top: 8px; }
+        .cancel-edit a { color: #d32f2f; cursor: pointer; text-decoration: underline; font-size: 14px; }
 
-        .stories-section { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; }
-        .stories-section h3 { color: #333; text-align: center; margin-bottom: 15px; }
-        .story-item { background: #f9f9f9; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; position: relative; border: 1px solid #eee; }
-        .story-item .title { font-weight: bold; color: #222; padding-left: 40px; word-break: break-word; }
-        .story-item .date { font-size: 12px; color: #888; margin-top: 4px; }
-        .story-item .menu-btn { position: absolute; top: 6px; left: 6px; background: none; border: none; font-size: 22px; cursor: pointer; color: #888; padding: 0 10px; border-radius: 6px; line-height: 1; }
-        .story-item .menu-btn:hover { background: #e8e8e8; color: #333; }
-        .story-item .menu { position: absolute; top: 38px; left: 6px; background: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; z-index: 10; min-width: 130px; overflow: hidden; }
+        /* لیست داستان‌ها */
+        .list-title { text-align: center; color: #333; margin-top: 25px; margin-bottom: 12px; font-size: 17px; }
+        .story-item {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .story-item .story-info { flex: 1; min-width: 0; }
+        .story-item .story-title {
+            font-weight: bold;
+            color: #222;
+            word-break: break-word;
+            font-size: 15px;
+        }
+        .story-item .story-date {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+        .story-item .menu-btn {
+            flex-shrink: 0;
+            background: #f0f0f0;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: #555;
+            padding: 2px 14px;
+            border-radius: 6px;
+            line-height: 1;
+        }
+        .story-item .menu-btn:hover { background: #e0e0e0; color: #000; }
+        .story-item .menu {
+            position: absolute;
+            top: 48px;
+            left: 10px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 10;
+            min-width: 140px;
+            overflow: hidden;
+        }
         .story-item .menu.show { display: block; }
-        .story-item .menu button { display: block; width: 100%; padding: 9px 14px; background: none; border: none; text-align: right; cursor: pointer; font-size: 14px; font-family: inherit; }
+        .story-item .menu button {
+            display: block; width: 100%;
+            padding: 10px 15px;
+            background: none; border: none;
+            text-align: right; cursor: pointer;
+            font-size: 14px; font-family: inherit;
+        }
         .story-item .menu button:hover { background: #f5f5f5; }
         .story-item .menu button.delete { color: #d32f2f; }
-        #storiesList { margin-top: 10px; }
-        .cancel-edit { display: none; text-align: center; margin-top: 10px; }
-        .cancel-edit a { color: #d32f2f; cursor: pointer; text-decoration: underline; font-size: 14px; }
+        .empty-msg { text-align: center; color: #999; padding: 15px; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -57,12 +106,12 @@
         <button id="publishBtn" class="main-btn" onclick="publish()">🚀 انتشار برای همه</button>
         <div class="cancel-edit" id="cancelEditBox"><a onclick="cancelEdit()">✖ لغو ویرایش</a></div>
         <div id="status"></div>
+
         <a class="back" href="index.html">← بازگشت به لیست داستان‌ها</a>
 
-        <div class="stories-section">
-            <h3>📚 داستان‌های منتشر شده</h3>
-            <div id="storiesList">در حال بارگذاری...</div>
-        </div>
+        <!-- لیست داستان‌ها دقیقاً اینجا -->
+        <div class="list-title">📚 داستان‌های منتشر شده</div>
+        <div id="storiesList"><div class="empty-msg">در حال بارگذاری...</div></div>
     </div>
 
     <script>
@@ -77,11 +126,49 @@
         let editingSha = null;
         let editingFilename = null;
 
-        // اگر با ?edit=filename اومده بود (از صفحه index)
         const urlParams = new URLSearchParams(window.location.search);
         const editFromUrl = urlParams.get('edit');
-        if (editFromUrl) {
-            loadForEdit(editFromUrl);
+        if (editFromUrl) loadForEdit(editFromUrl);
+
+        function resetEditState() {
+            editingSha = null;
+            editingFilename = null;
+            document.getElementById('pageTitle').textContent = '✍️ داستان جدید';
+            document.getElementById('editBanner').style.display = 'none';
+            document.getElementById('publishBtn').textContent = '🚀 انتشار برای همه';
+            document.getElementById('cancelEditBox').style.display = 'none';
+        }
+
+        function cancelEdit() {
+            document.getElementById('title').value = '';
+            document.getElementById('text').value = '';
+            document.getElementById('author').value = '';
+            resetEditState();
+            window.history.replaceState({}, '', 'write.html');
+        }
+
+        async function loadForEdit(filename) {
+            const status = document.getElementById('status');
+            try {
+                const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/stories/${filename}`);
+                if (!res.ok) throw new Error('فایل پیدا نشد');
+                const data = await res.json();
+                editingSha = data.sha;
+                editingFilename = filename;
+                const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+                const c = JSON.parse(decoded);
+                document.getElementById('author').value = c.author || '';
+                document.getElementById('title').value = c.title || '';
+                document.getElementById('text').value = c.text || '';
+                document.getElementById('pageTitle').textContent = '✏️ ویرایش داستان';
+                document.getElementById('editBanner').style.display = 'block';
+                document.getElementById('publishBtn').textContent = '💾 ذخیره تغییرات';
+                document.getElementById('cancelEditBox').style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                status.textContent = '';
+            } catch (e) {
+                alert('خطا در بارگذاری داستان: ' + e.message);
+            }
         }
 
         async function publish() {
@@ -127,15 +214,12 @@
 
                 if (res.ok) {
                     status.style.color = 'green';
-                    if (editingSha) {
-                        status.textContent = '✅ تغییرات ذخیره شد!';
-                    } else {
-                        status.textContent = '✅ منتشر شد! در لیست پایین می‌بینی.';
-                    }
+                    status.textContent = editingSha ? '✅ تغییرات ذخیره شد!' : '✅ منتشر شد!';
                     document.getElementById('title').value = '';
                     document.getElementById('text').value = '';
                     resetEditState();
-                    setTimeout(loadStories, 2000);
+                    window.history.replaceState({}, '', 'write.html');
+                    setTimeout(loadStories, 1500);
                 } else {
                     const err = await res.json();
                     status.style.color = 'red';
@@ -149,48 +233,9 @@
             }
         }
 
-        function resetEditState() {
-            editingSha = null;
-            editingFilename = null;
-            document.getElementById('pageTitle').textContent = '✍️ داستان جدید';
-            document.getElementById('editBanner').style.display = 'none';
-            document.getElementById('publishBtn').textContent = '🚀 انتشار برای همه';
-            document.getElementById('cancelEditBox').style.display = 'none';
-        }
-
-        function cancelEdit() {
-            document.getElementById('title').value = '';
-            document.getElementById('text').value = '';
-            document.getElementById('author').value = '';
-            resetEditState();
-            window.history.replaceState({}, '', 'write.html');
-        }
-
-        async function loadForEdit(filename) {
-            try {
-                const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/stories/${filename}`);
-                if (!res.ok) throw new Error('فایل پیدا نشد');
-                const data = await res.json();
-                editingSha = data.sha;
-                editingFilename = filename;
-                const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
-                const content = JSON.parse(decoded);
-                document.getElementById('author').value = content.author || '';
-                document.getElementById('title').value = content.title || '';
-                document.getElementById('text').value = content.text || '';
-                document.getElementById('pageTitle').textContent = '✏️ ویرایش داستان';
-                document.getElementById('editBanner').style.display = 'block';
-                document.getElementById('publishBtn').textContent = '💾 ذخیره تغییرات';
-                document.getElementById('cancelEditBox').style.display = 'block';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } catch (e) {
-                alert('خطا در بارگذاری داستان: ' + e.message);
-            }
-        }
-
         async function deleteStory(filename, title) {
             const token = tokenInput.value.trim();
-            if (!token) { alert('برای حذف، ابتدا توکن را بالا وارد کن.'); return; }
+            if (!token) { alert('برای حذف، ابتدا توکن را در کادر زرد بالا وارد کن.'); return; }
             if (!confirm('آیا مطمئنی می‌خواهی داستان «' + title + '» را برای همیشه حذف کنی؟')) return;
 
             const status = document.getElementById('status');
@@ -216,8 +261,8 @@
 
                 if (delRes.ok) {
                     status.style.color = 'green';
-                    status.textContent = '✅ داستان حذف شد.';
-                    if (editingFilename === filename) { cancelEdit(); }
+                    status.textContent = '✅ داستان حذف شد!';
+                    if (editingFilename === filename) cancelEdit();
                     setTimeout(loadStories, 1500);
                 } else {
                     const err = await delRes.json();
@@ -239,7 +284,7 @@
                 const jsonFiles = files.filter(f => f.name.endsWith('.json'));
 
                 if (jsonFiles.length === 0) {
-                    listEl.innerHTML = '<p style="text-align:center;color:#888;">هنوز داستانی منتشر نشده.</p>';
+                    listEl.innerHTML = '<div class="empty-msg">هنوز داستانی منتشر نشده.</div>';
                     return;
                 }
 
@@ -256,19 +301,21 @@
 
                 listEl.innerHTML = stories.map(s => `
                     <div class="story-item" data-filename="${escapeHtml(s.filename)}">
+                        <div class="story-info">
+                            <div class="story-title">${escapeHtml(s.title)}</div>
+                            <div class="story-date">${new Date(s.date).toLocaleString('fa-IR')}</div>
+                        </div>
                         <button class="menu-btn" title="گزینه‌ها">⋯</button>
                         <div class="menu">
                             <button class="edit-btn">✏️ ویرایش</button>
                             <button class="delete-btn delete">🗑️ حذف</button>
                         </div>
-                        <div class="title">${escapeHtml(s.title)}</div>
-                        <div class="date">${new Date(s.date).toLocaleString('fa-IR')}</div>
                     </div>
                 `).join('');
 
                 document.querySelectorAll('.story-item').forEach(item => {
                     const filename = item.dataset.filename;
-                    const title = item.querySelector('.title').textContent;
+                    const title = item.querySelector('.story-title').textContent;
                     item.querySelector('.menu-btn').addEventListener('click', (e) => {
                         e.stopPropagation();
                         const menu = item.querySelector('.menu');
@@ -285,7 +332,7 @@
                     });
                 });
             } catch (e) {
-                listEl.innerHTML = '<p style="text-align:center;color:red;">خطا در بارگذاری.</p>';
+                listEl.innerHTML = '<div class="empty-msg" style="color:red;">خطا در بارگذاری.</div>';
                 console.error(e);
             }
         }
@@ -301,4 +348,4 @@
         loadStories();
     </script>
 </body>
-    </html>
+</html>
