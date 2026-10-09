@@ -9,36 +9,23 @@
         .header { text-align: center; margin-bottom: 30px; }
         .header h1 { color: #333; }
         .btn-write { display: inline-block; padding: 10px 20px; background: #2ea44f; color: #fff; text-decoration: none; border-radius: 8px; margin-top: 10px; font-weight: bold; }
-        .story { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; }
-        .story h3 { margin: 0 0 8px; color: #222; padding-left: 40px; }
+        .story { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .story h3 { margin: 0 0 8px; color: #222; }
         .story .meta { color: #888; font-size: 12px; margin-bottom: 10px; }
         .story .text { color: #444; line-height: 1.8; white-space: pre-wrap; }
-        .menu-btn { position: absolute; top: 15px; left: 15px; background: none; border: none; font-size: 22px; cursor: pointer; color: #888; padding: 2px 12px; border-radius: 6px; line-height: 1; }
-        .menu-btn:hover { background: #f0f0f0; color: #333; }
-        .menu { position: absolute; top: 45px; left: 15px; background: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; z-index: 10; min-width: 130px; overflow: hidden; }
-        .menu.show { display: block; }
-        .menu button { display: block; width: 100%; padding: 10px 15px; background: none; border: none; text-align: right; cursor: pointer; font-size: 14px; font-family: inherit; }
-        .menu button:hover { background: #f5f5f5; }
-        .menu button.delete { color: #d32f2f; }
         #loading { text-align: center; color: #888; }
-        #status { text-align: center; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>📖 داستان‌های عمومی</h1>
         <a class="btn-write" href="write.html">✍️ نوشتن داستان جدید</a>
-        <div id="status"></div>
     </div>
     <div id="list"><div id="loading">در حال بارگذاری...</div></div>
 
     <script>
         const OWNER = 'acoder95';
         const REPO = 'das_nivisi';
-
-        function getToken() {
-            return localStorage.getItem('gh_token') || '';
-        }
 
         async function loadStories() {
             const listEl = document.getElementById('list');
@@ -57,105 +44,22 @@
                 const stories = await Promise.all(
                     jsonFiles.map(async f => {
                         const r = await fetch(f.download_url);
-                        const data = await r.json();
-                        data.filename = f.name;
-                        return data;
+                        return await r.json();
                     })
                 );
 
                 stories.sort((a, b) => new Date(b.date) - new Date(a.date));
 
                 listEl.innerHTML = stories.map(s => `
-                    <div class="story" data-filename="${escapeHtml(s.filename)}">
-                        <button class="menu-btn" title="گزینه‌ها">⋯</button>
-                        <div class="menu">
-                            <button class="edit-btn">✏️ ویرایش</button>
-                            <button class="delete-btn delete">🗑️ حذف</button>
-                        </div>
+                    <div class="story">
                         <h3>${escapeHtml(s.title)}</h3>
                         <div class="meta">نویسنده: ${escapeHtml(s.author)} | ${new Date(s.date).toLocaleString('fa-IR')}</div>
                         <div class="text">${escapeHtml(s.text)}</div>
                     </div>
                 `).join('');
-
-                document.querySelectorAll('.story').forEach(story => {
-                    const filename = story.dataset.filename;
-                    story.querySelector('.menu-btn').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const menu = story.querySelector('.menu');
-                        document.querySelectorAll('.menu.show').forEach(m => { if (m !== menu) m.classList.remove('show'); });
-                        menu.classList.toggle('show');
-                    });
-                    story.querySelector('.edit-btn').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        window.location.href = 'write.html?edit=' + encodeURIComponent(filename);
-                    });
-                    story.querySelector('.delete-btn').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        deleteStory(filename);
-                    });
-                });
-
             } catch (e) {
                 listEl.innerHTML = '<p style="text-align:center;color:red;">خطا در بارگذاری داستان‌ها.</p>';
                 console.error(e);
-            }
-        }
-
-        document.addEventListener('click', () => {
-            document.querySelectorAll('.menu.show').forEach(m => m.classList.remove('show'));
-        });
-
-        async function deleteStory(filename) {
-            const token = getToken();
-            if (!token) {
-                alert('برای حذف، ابتدا یک بار توکن را در صفحه «نوشتن داستان» وارد کن.');
-                return;
-            }
-            if (!confirm('آیا مطمئنی می‌خواهی این داستان را برای همیشه حذف کنی؟')) return;
-
-            const status = document.getElementById('status');
-            status.style.color = '#555';
-            status.textContent = '⏳ در حال حذف...';
-
-            try {
-                const getRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/stories/${filename}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
-                if (!getRes.ok) throw new Error('فایل پیدا نشد');
-                const fileData = await getRes.json();
-
-                const delRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/stories/${filename}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: `حذف داستان: ${filename}`,
-                        sha: fileData.sha,
-                        branch: 'main'
-                    })
-                });
-
-                if (delRes.ok) {
-                    status.style.color = 'green';
-                    status.textContent = '✅ داستان حذف شد. چند ثانیه بعد از لیست محو می‌شود.';
-                    const storyEl = document.querySelector(`.story[data-filename="${filename}"]`);
-                    if (storyEl) storyEl.remove();
-                    setTimeout(loadStories, 3000);
-                } else {
-                    const err = await delRes.json();
-                    status.style.color = 'red';
-                    status.textContent = `❌ خطا: ${err.message}`;
-                }
-            } catch (e) {
-                status.style.color = 'red';
-                status.textContent = `❌ خطا: ${e.message}`;
             }
         }
 
