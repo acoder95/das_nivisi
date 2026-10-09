@@ -10,13 +10,29 @@
         h2 { text-align: center; color: #333; }
         label { display: block; margin-top: 12px; color: #555; font-weight: bold; }
         input, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; box-sizing: border-box; font-family: inherit; }
-        textarea { height: 220px; resize: vertical; }
-        button { width: 100%; padding: 12px; margin-top: 15px; background: #2ea44f; color: #fff; border: none; border-radius: 8px; font-size: 17px; cursor: pointer; font-weight: bold; }
-        button:disabled { background: #aaa; cursor: not-allowed; }
+        textarea { height: 200px; resize: vertical; }
+        button.main-btn { width: 100%; padding: 12px; margin-top: 15px; background: #2ea44f; color: #fff; border: none; border-radius: 8px; font-size: 17px; cursor: pointer; font-weight: bold; }
+        button.main-btn:disabled { background: #aaa; cursor: not-allowed; }
         #status { text-align: center; margin-top: 15px; font-weight: bold; }
         .token-box { background: #fffbe6; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; border: 1px solid #ffe58f; }
         .back { display:block; text-align:center; margin-top:15px; color:#2ea44f; text-decoration: none; }
         .edit-banner { background: #e3f2fd; color: #1565c0; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 15px; font-weight: bold; }
+
+        .stories-section { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; }
+        .stories-section h3 { color: #333; text-align: center; margin-bottom: 15px; }
+        .story-item { background: #f9f9f9; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; position: relative; border: 1px solid #eee; }
+        .story-item .title { font-weight: bold; color: #222; padding-left: 40px; word-break: break-word; }
+        .story-item .date { font-size: 12px; color: #888; margin-top: 4px; }
+        .story-item .menu-btn { position: absolute; top: 6px; left: 6px; background: none; border: none; font-size: 22px; cursor: pointer; color: #888; padding: 0 10px; border-radius: 6px; line-height: 1; }
+        .story-item .menu-btn:hover { background: #e8e8e8; color: #333; }
+        .story-item .menu { position: absolute; top: 38px; left: 6px; background: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; z-index: 10; min-width: 130px; overflow: hidden; }
+        .story-item .menu.show { display: block; }
+        .story-item .menu button { display: block; width: 100%; padding: 9px 14px; background: none; border: none; text-align: right; cursor: pointer; font-size: 14px; font-family: inherit; }
+        .story-item .menu button:hover { background: #f5f5f5; }
+        .story-item .menu button.delete { color: #d32f2f; }
+        #storiesList { margin-top: 10px; }
+        .cancel-edit { display: none; text-align: center; margin-top: 10px; }
+        .cancel-edit a { color: #d32f2f; cursor: pointer; text-decoration: underline; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -38,9 +54,15 @@
         <label>متن داستان:</label>
         <textarea id="text" placeholder="داستانت را اینجا بنویس..."></textarea>
 
-        <button id="publishBtn" onclick="publish()">🚀 انتشار برای همه</button>
+        <button id="publishBtn" class="main-btn" onclick="publish()">🚀 انتشار برای همه</button>
+        <div class="cancel-edit" id="cancelEditBox"><a onclick="cancelEdit()">✖ لغو ویرایش</a></div>
         <div id="status"></div>
         <a class="back" href="index.html">← بازگشت به لیست داستان‌ها</a>
+
+        <div class="stories-section">
+            <h3>📚 داستان‌های منتشر شده</h3>
+            <div id="storiesList">در حال بارگذاری...</div>
+        </div>
     </div>
 
     <script>
@@ -52,31 +74,14 @@
         if (saved) tokenInput.value = saved;
         tokenInput.addEventListener('change', () => localStorage.setItem('gh_token', tokenInput.value.trim()));
 
-        // بررسی حالت ویرایش
-        const urlParams = new URLSearchParams(window.location.search);
-        const editFilename = urlParams.get('edit');
         let editingSha = null;
+        let editingFilename = null;
 
-        if (editFilename) {
-            document.getElementById('pageTitle').textContent = '✏️ ویرایش داستان';
-            document.getElementById('editBanner').style.display = 'block';
-            document.getElementById('publishBtn').textContent = '💾 ذخیره تغییرات';
-
-            (async () => {
-                try {
-                    const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/stories/${editFilename}`);
-                    if (!res.ok) throw new Error('فایل پیدا نشد');
-                    const data = await res.json();
-                    editingSha = data.sha;
-                    const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
-                    const content = JSON.parse(decoded);
-                    document.getElementById('author').value = content.author || '';
-                    document.getElementById('title').value = content.title || '';
-                    document.getElementById('text').value = content.text || '';
-                } catch (e) {
-                    alert('خطا در بارگذاری داستان: ' + e.message);
-                }
-            })();
+        // اگر با ?edit=filename اومده بود (از صفحه index)
+        const urlParams = new URLSearchParams(window.location.search);
+        const editFromUrl = urlParams.get('edit');
+        if (editFromUrl) {
+            loadForEdit(editFromUrl);
         }
 
         async function publish() {
@@ -97,7 +102,7 @@
             try {
                 let filename, message;
                 if (editingSha) {
-                    filename = `stories/${editFilename}`;
+                    filename = `stories/${editingFilename}`;
                     message = `ویرایش داستان: ${title}`;
                 } else {
                     filename = `stories/${Date.now()}.json`;
@@ -123,13 +128,14 @@
                 if (res.ok) {
                     status.style.color = 'green';
                     if (editingSha) {
-                        status.textContent = '✅ تغییرات ذخیره شد! در حال بازگشت به لیست...';
-                        setTimeout(() => window.location.href = 'index.html', 2000);
+                        status.textContent = '✅ تغییرات ذخیره شد!';
                     } else {
-                        status.textContent = '✅ منتشر شد! چند ثانیه بعد در لیست می‌بینی.';
-                        document.getElementById('title').value = '';
-                        document.getElementById('text').value = '';
+                        status.textContent = '✅ منتشر شد! در لیست پایین می‌بینی.';
                     }
+                    document.getElementById('title').value = '';
+                    document.getElementById('text').value = '';
+                    resetEditState();
+                    setTimeout(loadStories, 2000);
                 } else {
                     const err = await res.json();
                     status.style.color = 'red';
@@ -142,6 +148,157 @@
                 btn.disabled = false;
             }
         }
+
+        function resetEditState() {
+            editingSha = null;
+            editingFilename = null;
+            document.getElementById('pageTitle').textContent = '✍️ داستان جدید';
+            document.getElementById('editBanner').style.display = 'none';
+            document.getElementById('publishBtn').textContent = '🚀 انتشار برای همه';
+            document.getElementById('cancelEditBox').style.display = 'none';
+        }
+
+        function cancelEdit() {
+            document.getElementById('title').value = '';
+            document.getElementById('text').value = '';
+            document.getElementById('author').value = '';
+            resetEditState();
+            window.history.replaceState({}, '', 'write.html');
+        }
+
+        async function loadForEdit(filename) {
+            try {
+                const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/stories/${filename}`);
+                if (!res.ok) throw new Error('فایل پیدا نشد');
+                const data = await res.json();
+                editingSha = data.sha;
+                editingFilename = filename;
+                const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+                const content = JSON.parse(decoded);
+                document.getElementById('author').value = content.author || '';
+                document.getElementById('title').value = content.title || '';
+                document.getElementById('text').value = content.text || '';
+                document.getElementById('pageTitle').textContent = '✏️ ویرایش داستان';
+                document.getElementById('editBanner').style.display = 'block';
+                document.getElementById('publishBtn').textContent = '💾 ذخیره تغییرات';
+                document.getElementById('cancelEditBox').style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (e) {
+                alert('خطا در بارگذاری داستان: ' + e.message);
+            }
+        }
+
+        async function deleteStory(filename, title) {
+            const token = tokenInput.value.trim();
+            if (!token) { alert('برای حذف، ابتدا توکن را بالا وارد کن.'); return; }
+            if (!confirm('آیا مطمئنی می‌خواهی داستان «' + title + '» را برای همیشه حذف کنی؟')) return;
+
+            const status = document.getElementById('status');
+            status.style.color = '#555';
+            status.textContent = '⏳ در حال حذف...';
+
+            try {
+                const getRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/stories/${filename}`, {
+                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+                });
+                if (!getRes.ok) throw new Error('فایل پیدا نشد');
+                const fileData = await getRes.json();
+
+                const delRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/stories/${filename}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: `حذف داستان: ${filename}`, sha: fileData.sha, branch: 'main' })
+                });
+
+                if (delRes.ok) {
+                    status.style.color = 'green';
+                    status.textContent = '✅ داستان حذف شد.';
+                    if (editingFilename === filename) { cancelEdit(); }
+                    setTimeout(loadStories, 1500);
+                } else {
+                    const err = await delRes.json();
+                    status.style.color = 'red';
+                    status.textContent = `❌ خطا: ${err.message}`;
+                }
+            } catch (e) {
+                status.style.color = 'red';
+                status.textContent = `❌ خطا: ${e.message}`;
+            }
+        }
+
+        async function loadStories() {
+            const listEl = document.getElementById('storiesList');
+            try {
+                const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/stories`);
+                if (!res.ok) throw new Error('خطا');
+                const files = await res.json();
+                const jsonFiles = files.filter(f => f.name.endsWith('.json'));
+
+                if (jsonFiles.length === 0) {
+                    listEl.innerHTML = '<p style="text-align:center;color:#888;">هنوز داستانی منتشر نشده.</p>';
+                    return;
+                }
+
+                const stories = await Promise.all(
+                    jsonFiles.map(async f => {
+                        const r = await fetch(f.download_url);
+                        const d = await r.json();
+                        d.filename = f.name;
+                        return d;
+                    })
+                );
+
+                stories.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                listEl.innerHTML = stories.map(s => `
+                    <div class="story-item" data-filename="${escapeHtml(s.filename)}">
+                        <button class="menu-btn" title="گزینه‌ها">⋯</button>
+                        <div class="menu">
+                            <button class="edit-btn">✏️ ویرایش</button>
+                            <button class="delete-btn delete">🗑️ حذف</button>
+                        </div>
+                        <div class="title">${escapeHtml(s.title)}</div>
+                        <div class="date">${new Date(s.date).toLocaleString('fa-IR')}</div>
+                    </div>
+                `).join('');
+
+                document.querySelectorAll('.story-item').forEach(item => {
+                    const filename = item.dataset.filename;
+                    const title = item.querySelector('.title').textContent;
+                    item.querySelector('.menu-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const menu = item.querySelector('.menu');
+                        document.querySelectorAll('.menu.show').forEach(m => { if (m !== menu) m.classList.remove('show'); });
+                        menu.classList.toggle('show');
+                    });
+                    item.querySelector('.edit-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        loadForEdit(filename);
+                    });
+                    item.querySelector('.delete-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteStory(filename, title);
+                    });
+                });
+            } catch (e) {
+                listEl.innerHTML = '<p style="text-align:center;color:red;">خطا در بارگذاری.</p>';
+                console.error(e);
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.menu.show').forEach(m => m.classList.remove('show'));
+        });
+
+        loadStories();
     </script>
 </body>
     </html>
