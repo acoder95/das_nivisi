@@ -3,120 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نوشتن داستان</title>
+    <title>پنل مدیریت تبلیغات</title>
     <style>
-        body { font-family: Tahoma, sans-serif; background: #f7f7f9; padding: 20px; }
-        .box { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        h2 { text-align: center; color: #333; }
-        label { display: block; margin-top: 12px; color: #555; font-weight: bold; }
-        input, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; box-sizing: border-box; font-family: inherit; }
-        textarea { height: 180px; resize: vertical; }
-        .main-btn { width: 100%; padding: 12px; margin-top: 15px; background: #2ea44f; color: #fff; border: none; border-radius: 8px; font-size: 17px; cursor: pointer; font-weight: bold; }
-        .main-btn:disabled { background: #aaa; cursor: not-allowed; }
-        #status { text-align: center; margin-top: 12px; font-weight: bold; }
+        body { font-family: Tahoma, sans-serif; background: #f0f2f5; padding: 20px; margin: 0; }
+        .box { max-width: 600px; margin: auto; background: #fff; padding: 22px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #1e293b; margin-top: 0; }
+        label { display: block; margin-top: 14px; color: #475569; font-weight: bold; font-size: 14px; }
+        input, textarea, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; box-sizing: border-box; font-family: inherit; }
+        textarea { height: 90px; resize: vertical; }
+        button.main-btn { width: 100%; padding: 13px; margin-top: 18px; background: #2ea44f; color: #fff; border: none; border-radius: 8px; font-size: 17px; cursor: pointer; font-weight: bold; }
+        button.main-btn:disabled { background: #aaa; cursor: not-allowed; }
+        #status { text-align: center; margin-top: 14px; font-weight: bold; }
         .token-box { background: #fffbe6; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; border: 1px solid #ffe58f; }
-        .back { display:block; text-align:center; margin-top:15px; color:#2ea44f; text-decoration: none; font-weight: bold; }
-        .edit-banner { background: #e3f2fd; color: #1565c0; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 12px; font-weight: bold; }
-        .cancel-edit { display: none; text-align: center; margin-top: 8px; }
-        .cancel-edit a { color: #d32f2f; cursor: pointer; text-decoration: underline; font-size: 14px; }
 
-        /* لیست داستان‌ها */
-        .list-title { text-align: center; color: #333; margin-top: 25px; margin-bottom: 12px; font-size: 17px; }
-        .story-item {
-            background: #fafafa;
-            border: 1px solid #e5e5e5;
-            border-radius: 10px;
-            padding: 12px 15px;
-            margin-bottom: 10px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .story-item .story-info { flex: 1; min-width: 0; }
-        .story-item .story-title {
-            font-weight: bold;
-            color: #222;
-            word-break: break-word;
-            font-size: 15px;
-        }
-        .story-item .story-date {
-            font-size: 12px;
-            color: #999;
-            margin-top: 4px;
-        }
-        .story-item .menu-btn {
-            flex-shrink: 0;
-            background: #f0f0f0;
-            border: none;
-            font-size: 22px;
-            cursor: pointer;
-            color: #555;
-            padding: 2px 14px;
-            border-radius: 6px;
-            line-height: 1;
-        }
-        .story-item .menu-btn:hover { background: #e0e0e0; color: #000; }
-        .story-item .menu {
-            position: absolute;
-            top: 48px;
-            left: 10px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
-            display: none;
-            z-index: 10;
-            min-width: 140px;
-            overflow: hidden;
-        }
-        .story-item .menu.show { display: block; }
-        .story-item .menu button {
-            display: block; width: 100%;
-            padding: 10px 15px;
-            background: none; border: none;
-            text-align: right; cursor: pointer;
-            font-size: 14px; font-family: inherit;
-        }
-        .story-item .menu button:hover { background: #f5f5f5; }
-        .story-item .menu button.delete { color: #d32f2f; }
-        .empty-msg { text-align: center; color: #999; padding: 15px; font-size: 14px; }
+        .ads-section { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; }
+        .ads-section h3 { text-align: center; color: #333; margin-bottom: 15px; }
+        .ad-item { background: #f9f9f9; border: 1px solid #e5e5e5; border-radius: 10px; padding: 12px 15px; margin-bottom: 10px; position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .ad-item .info { flex: 1; min-width: 0; }
+        .ad-item .ad-name { font-weight: bold; color: #1e293b; word-break: break-word; }
+        .ad-item .ad-meta { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+        .ad-item .ad-meta.expired { color: #dc2626; font-weight: bold; }
+        .ad-item .menu-btn { background: #f0f0f0; border: none; font-size: 20px; cursor: pointer; color: #555; padding: 2px 12px; border-radius: 6px; line-height: 1; flex-shrink: 0; }
+        .ad-item .menu-btn:hover { background: #e0e0e0; }
+        .ad-item .menu { position: absolute; top: 45px; left: 10px; background: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.15); display: none; z-index: 10; min-width: 140px; overflow: hidden; }
+        .ad-item .menu.show { display: block; }
+        .ad-item .menu button { display: block; width: 100%; padding: 10px 15px; background: none; border: none; text-align: right; cursor: pointer; font-size: 14px; font-family: inherit; }
+        .ad-item .menu button:hover { background: #f5f5f5; }
+        .ad-item .menu button.delete { color: #d32f2f; }
+        .expired-badge { background: #dc2626; color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 10px; margin-right: 6px; }
+        .active-badge { background: #16a34a; color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 10px; margin-right: 6px; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h2 id="pageTitle">✍️ داستان جدید</h2>
-        <div id="editBanner" class="edit-banner" style="display:none;">در حال ویرایش داستان موجود</div>
+        <h2>📢 مدیریت تبلیغات</h2>
 
         <div class="token-box">
             <label>توکن GitHub (فقط یک بار وارد کن):</label>
             <input type="password" id="tokenInput" placeholder="github_pat_xxxxx" />
         </div>
 
-        <label>نام نویسنده:</label>
-        <input type="text" id="author" placeholder="مثلاً: علی" />
+        <label>نام کانال / گروه:</label>
+        <input type="text" id="name" placeholder="مثلاً: کانال آموزش برنامه‌نویسی" />
 
-        <label>عنوان داستان:</label>
-        <input type="text" id="title" placeholder="عنوان..." />
+        <label>لینک کانال / گروه:</label>
+        <input type="url" id="link" placeholder="https://t.me/..." />
 
-        <label>متن داستان:</label>
-        <textarea id="text" placeholder="داستانت را اینجا بنویس..."></textarea>
+        <label>توضیحات (اختیاری):</label>
+        <textarea id="description" placeholder="توضیح کوتاه درباره کانال..."></textarea>
 
-        <button id="publishBtn" class="main-btn" onclick="publish()">🚀 انتشار برای همه</button>
-        <div class="cancel-edit" id="cancelEditBox"><a onclick="cancelEdit()">✖ لغو ویرایش</a></div>
+        <label>مدت تبلیغ:</label>
+        <select id="duration">
+            <option value="1">۱ ماه (۳۰ روز)</option>
+            <option value="2">۲ ماه (۶۰ روز)</option>
+            <option value="3">۳ ماه (۹۰ روز)</option>
+            <option value="4">۴ ماه (۱۲۰ روز)</option>
+            <option value="5">۵ ماه (۱۵۰ روز)</option>
+            <option value="6">۶ ماه (۱۸۰ روز)</option>
+        </select>
+
+        <button id="deployBtn" class="main-btn" onclick="deploy()">🚀 استقرار تبلیغ</button>
         <div id="status"></div>
 
-        <a class="back" href="index.html">← بازگشت به لیست داستان‌ها</a>
-
-        <!-- لیست داستان‌ها دقیقاً اینجا -->
-        <div class="list-title">📚 داستان‌های منتشر شده</div>
-        <div id="storiesList"><div class="empty-msg">در حال بارگذاری...</div></div>
+        <div class="ads-section">
+            <h3>📋 تبلیغات فعلی</h3>
+            <div id="adsList">در حال بارگذاری...</div>
+        </div>
     </div>
 
     <script>
+        // اینها مربوط به مخزن نمایش (نه این مخزن)
         const OWNER = 'acoder95';
         const REPO = 'das_nivisi';
+        const ADS_FOLDER = 'ads';
 
         const tokenInput = document.getElementById('tokenInput');
         const saved = localStorage.getItem('gh_token');
@@ -126,78 +85,55 @@
         let editingSha = null;
         let editingFilename = null;
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const editFromUrl = urlParams.get('edit');
-        if (editFromUrl) loadForEdit(editFromUrl);
-
-        function resetEditState() {
+        function resetEdit() {
             editingSha = null;
             editingFilename = null;
-            document.getElementById('pageTitle').textContent = '✍️ داستان جدید';
-            document.getElementById('editBanner').style.display = 'none';
-            document.getElementById('publishBtn').textContent = '🚀 انتشار برای همه';
-            document.getElementById('cancelEditBox').style.display = 'none';
+            document.getElementById('deployBtn').textContent = '🚀 استقرار تبلیغ';
         }
 
-        function cancelEdit() {
-            document.getElementById('title').value = '';
-            document.getElementById('text').value = '';
-            document.getElementById('author').value = '';
-            resetEditState();
-            window.history.replaceState({}, '', 'write.html');
-        }
-
-        async function loadForEdit(filename) {
+        async function deploy() {
             const status = document.getElementById('status');
-            try {
-                const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/stories/${filename}`);
-                if (!res.ok) throw new Error('فایل پیدا نشد');
-                const data = await res.json();
-                editingSha = data.sha;
-                editingFilename = filename;
-                const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
-                const c = JSON.parse(decoded);
-                document.getElementById('author').value = c.author || '';
-                document.getElementById('title').value = c.title || '';
-                document.getElementById('text').value = c.text || '';
-                document.getElementById('pageTitle').textContent = '✏️ ویرایش داستان';
-                document.getElementById('editBanner').style.display = 'block';
-                document.getElementById('publishBtn').textContent = '💾 ذخیره تغییرات';
-                document.getElementById('cancelEditBox').style.display = 'block';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                status.textContent = '';
-            } catch (e) {
-                alert('خطا در بارگذاری داستان: ' + e.message);
-            }
-        }
-
-        async function publish() {
-            const status = document.getElementById('status');
-            const btn = document.getElementById('publishBtn');
+            const btn = document.getElementById('deployBtn');
             const token = tokenInput.value.trim();
-            const author = document.getElementById('author').value.trim();
-            const title = document.getElementById('title').value.trim();
-            const text = document.getElementById('text').value.trim();
+            const name = document.getElementById('name').value.trim();
+            const link = document.getElementById('link').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const months = parseInt(document.getElementById('duration').value);
 
             if (!token) { status.style.color = 'red'; return status.textContent = '❌ توکن را وارد کن.'; }
-            if (!author || !title || !text) { status.style.color = 'red'; return status.textContent = '❌ همه فیلدها را پر کن.'; }
+            if (!name || !link) { status.style.color = 'red'; return status.textContent = '❌ نام و لینک الزامی است.'; }
 
             btn.disabled = true;
             status.style.color = '#555';
-            status.textContent = editingSha ? '⏳ در حال ذخیره تغییرات...' : '⏳ در حال انتشار...';
+            status.textContent = editingSha ? '⏳ در حال ویرایش...' : '⏳ در حال استقرار...';
 
             try {
-                let filename, message;
+                const now = new Date();
+                let created, expires;
+
                 if (editingSha) {
-                    filename = `stories/${editingFilename}`;
-                    message = `ویرایش داستان: ${title}`;
+                    // در حالت ویرایش، تاریخ ایجاد و انقضا رو نگه می‌داریم مگر اینکه کاربر مدت رو تغییر بده
+                    const old = JSON.parse(sessionStorage.getItem('editing_ad') || '{}');
+                    created = old.created || now.toISOString();
+                    // انقضای جدید بر اساس مدت انتخابی از الان
+                    const newExpire = new Date(now.getTime() + months * 30 * 24 * 60 * 60 * 1000);
+                    expires = newExpire.toISOString();
                 } else {
-                    filename = `stories/${Date.now()}.json`;
-                    message = `داستان جدید: ${title}`;
+                    created = now.toISOString();
+                    expires = new Date(now.getTime() + months * 30 * 24 * 60 * 60 * 1000).toISOString();
                 }
 
-                const data = { author, title, text, date: new Date().toISOString() };
+                const data = { name, link, description, created, expires, durationMonths: months };
                 const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+
+                let filename, message;
+                if (editingSha) {
+                    filename = `${ADS_FOLDER}/${editingFilename}`;
+                    message = `ویرایش تبلیغ: ${name}`;
+                } else {
+                    filename = `${ADS_FOLDER/${Date.now()}.json`;
+                    message = `تبلیغ جدید: ${name}`;
+                }
 
                 const body = { message, content, branch: 'main' };
                 if (editingSha) body.sha = editingSha;
@@ -214,12 +150,13 @@
 
                 if (res.ok) {
                     status.style.color = 'green';
-                    status.textContent = editingSha ? '✅ تغییرات ذخیره شد!' : '✅ منتشر شد!';
-                    document.getElementById('title').value = '';
-                    document.getElementById('text').value = '';
-                    resetEditState();
-                    window.history.replaceState({}, '', 'write.html');
-                    setTimeout(loadStories, 1500);
+                    status.textContent = editingSha ? '✅ تغییرات ذخیره شد!' : '✅ تبلیغ مستقر شد! در لیست پایین می‌بینی.';
+                    document.getElementById('name').value = '';
+                    document.getElementById('link').value = '';
+                    document.getElementById('description').value = '';
+                    sessionStorage.removeItem('editing_ad');
+                    resetEdit();
+                    setTimeout(loadAds, 1500);
                 } else {
                     const err = await res.json();
                     status.style.color = 'red';
@@ -233,37 +170,36 @@
             }
         }
 
-        async function deleteStory(filename, title) {
+        async function deleteAd(filename, name) {
             const token = tokenInput.value.trim();
-            if (!token) { alert('برای حذف، ابتدا توکن را در کادر زرد بالا وارد کن.'); return; }
-            if (!confirm('آیا مطمئنی می‌خواهی داستان «' + title + '» را برای همیشه حذف کنی؟')) return;
+            if (!token) { alert('برای حذف، ابتدا توکن را وارد کن.'); return; }
+            if (!confirm(`آیا مطمئنی تبلیغ «${name}» حذف شود؟`)) return;
 
             const status = document.getElementById('status');
             status.style.color = '#555';
             status.textContent = '⏳ در حال حذف...';
 
             try {
-                const getRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/stories/${filename}`, {
+                const getRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${ADS_FOLDER}/${filename}`, {
                     headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' }
                 });
                 if (!getRes.ok) throw new Error('فایل پیدا نشد');
                 const fileData = await getRes.json();
 
-                const delRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/stories/${filename}`, {
+                const delRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${ADS_FOLDER}/${filename}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/vnd.github.v3+json',
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ message: `حذف داستان: ${filename}`, sha: fileData.sha, branch: 'main' })
+                    body: JSON.stringify({ message: `حذف تبلیغ: ${filename}`, sha: fileData.sha, branch: 'main' })
                 });
 
                 if (delRes.ok) {
                     status.style.color = 'green';
-                    status.textContent = '✅ داستان حذف شد!';
-                    if (editingFilename === filename) cancelEdit();
-                    setTimeout(loadStories, 1500);
+                    status.textContent = '✅ تبلیغ حذف شد.';
+                    setTimeout(loadAds, 1200);
                 } else {
                     const err = await delRes.json();
                     status.style.color = 'red';
@@ -275,47 +211,80 @@
             }
         }
 
-        async function loadStories() {
-            const listEl = document.getElementById('storiesList');
+        async function editAd(filename) {
             try {
-                const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/stories`);
+                const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${ADS_FOLDER}/${filename}?t=` + Date.now());
+                if (!res.ok) throw new Error('خطا');
+                const fileData = await res.json();
+                const decoded = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g, ''))));
+                const data = JSON.parse(decoded);
+
+                document.getElementById('name').value = data.name || '';
+                document.getElementById('link').value = data.link || '';
+                document.getElementById('description').value = data.description || '';
+                document.getElementById('duration').value = data.durationMonths || 1;
+
+                editingSha = fileData.sha;
+                editingFilename = filename;
+                sessionStorage.setItem('editing_ad', JSON.stringify(data));
+                document.getElementById('deployBtn').textContent = '💾 ذخیره تغییرات';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (e) {
+                alert('خطا در بارگذاری: ' + e.message);
+            }
+        }
+
+        async function loadAds() {
+            const listEl = document.getElementById('adsList');
+            try {
+                const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${ADS_FOLDER}?t=` + Date.now());
                 if (!res.ok) throw new Error('خطا');
                 const files = await res.json();
                 const jsonFiles = files.filter(f => f.name.endsWith('.json'));
 
                 if (jsonFiles.length === 0) {
-                    listEl.innerHTML = '<div class="empty-msg">هنوز داستانی منتشر نشده.</div>';
+                    listEl.innerHTML = '<p style="text-align:center;color:#999;">تبلیغی ثبت نشده.</p>';
                     return;
                 }
 
-                const stories = await Promise.all(
+                const ads = await Promise.all(
                     jsonFiles.map(async f => {
-                        const r = await fetch(f.download_url);
+                        const r = await fetch(f.download_url + '?t=' + Date.now());
                         const d = await r.json();
                         d.filename = f.name;
                         return d;
                     })
                 );
 
-                stories.sort((a, b) => new Date(b.date) - new Date(a.date));
+                const now = Date.now();
+                ads.sort((a, b) => new Date(b.created) - new Date(a.created));
 
-                listEl.innerHTML = stories.map(s => `
-                    <div class="story-item" data-filename="${escapeHtml(s.filename)}">
-                        <div class="story-info">
-                            <div class="story-title">${escapeHtml(s.title)}</div>
-                            <div class="story-date">${new Date(s.date).toLocaleString('fa-IR')}</div>
+                listEl.innerHTML = ads.map(a => {
+                    const isExpired = new Date(a.expires).getTime() <= now;
+                    const daysLeft = Math.ceil((new Date(a.expires).getTime() - now) / (1000 * 60 * 60 * 24));
+                    return `
+                        <div class="ad-item" data-filename="${escapeHtml(a.filename)}">
+                            <div class="info">
+                                <div class="ad-name">
+                                    ${isExpired ? '<span class="expired-badge">منقضی</span>' : '<span class="active-badge">فعال</span>'}
+                                    ${escapeHtml(a.name)}
+                                </div>
+                                <div class="ad-meta ${isExpired ? 'expired' : ''}">
+                                    ${isExpired ? 'منقضی شده' : daysLeft + ' روز باقی‌مانده'} — انقضا: ${new Date(a.expires).toLocaleDateString('fa-IR')}
+                                </div>
+                            </div>
+                            <button class="menu-btn">⋯</button>
+                            <div class="menu">
+                                <button class="edit-btn">✏️ ویرایش</button>
+                                <button class="delete-btn delete">🗑️ حذف</button>
+                            </div>
                         </div>
-                        <button class="menu-btn" title="گزینه‌ها">⋯</button>
-                        <div class="menu">
-                            <button class="edit-btn">✏️ ویرایش</button>
-                            <button class="delete-btn delete">🗑️ حذف</button>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
 
-                document.querySelectorAll('.story-item').forEach(item => {
+                document.querySelectorAll('.ad-item').forEach(item => {
                     const filename = item.dataset.filename;
-                    const title = item.querySelector('.story-title').textContent;
+                    const name = item.querySelector('.ad-name').textContent.trim();
                     item.querySelector('.menu-btn').addEventListener('click', (e) => {
                         e.stopPropagation();
                         const menu = item.querySelector('.menu');
@@ -324,16 +293,15 @@
                     });
                     item.querySelector('.edit-btn').addEventListener('click', (e) => {
                         e.stopPropagation();
-                        loadForEdit(filename);
+                        editAd(filename);
                     });
                     item.querySelector('.delete-btn').addEventListener('click', (e) => {
                         e.stopPropagation();
-                        deleteStory(filename, title);
+                        deleteAd(filename, name);
                     });
                 });
             } catch (e) {
-                listEl.innerHTML = '<div class="empty-msg" style="color:red;">خطا در بارگذاری.</div>';
-                console.error(e);
+                listEl.innerHTML = '<p style="color:red;text-align:center;">خطا در بارگذاری.</p>';
             }
         }
 
@@ -345,7 +313,7 @@
             document.querySelectorAll('.menu.show').forEach(m => m.classList.remove('show'));
         });
 
-        loadStories();
+        loadAds();
     </script>
 </body>
-</html>
+                </html>
