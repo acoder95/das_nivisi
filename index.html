@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داستان‌های عمومی</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; background: #f7f7f9; margin: 0; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #333; }
+        .btn-write { display: inline-block; padding: 10px 20px; background: #2ea44f; color: #fff; text-decoration: none; border-radius: 8px; margin-top: 10px; font-weight: bold; }
+        .story { background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .story h3 { margin: 0 0 8px; color: #222; }
+        .story .meta { color: #888; font-size: 12px; margin-bottom: 10px; }
+        .story .text { color: #444; line-height: 1.8; white-space: pre-wrap; }
+        #loading { text-align: center; color: #888; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📖 داستان‌های عمومی</h1>
+        <a class="btn-write" href="write.html">✍️ نوشتن داستان جدید</a>
+    </div>
+    <div id="list"><div id="loading">در حال بارگذاری...</div></div>
+
+    <script>
+        const OWNER = 'acoder95';
+        const REPO = 'das_nivisi';
+
+        async function loadStories() {
+            const listEl = document.getElementById('list');
+            try {
+                const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/stories`);
+                if (!res.ok) throw new Error('خطا در دریافت لیست');
+                const files = await res.json();
+
+                const jsonFiles = files.filter(f => f.name.endsWith('.json'));
+
+                if (jsonFiles.length === 0) {
+                    listEl.innerHTML = '<p style="text-align:center;color:#888;">هنوز داستانی منتشر نشده.</p>';
+                    return;
+                }
+
+                const stories = await Promise.all(
+                    jsonFiles.map(async f => {
+                        const r = await fetch(f.download_url);
+                        return await r.json();
+                    })
+                );
+
+                stories.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                listEl.innerHTML = stories.map(s => `
+                    <div class="story">
+                        <h3>${escapeHtml(s.title)}</h3>
+                        <div class="meta">نویسنده: ${escapeHtml(s.author)} | ${new Date(s.date).toLocaleString('fa-IR')}</div>
+                        <div class="text">${escapeHtml(s.text)}</div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                listEl.innerHTML = '<p style="text-align:center;color:red;">خطا در بارگذاری داستان‌ها.</p>';
+                console.error(e);
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        loadStories();
+    </script>
+</body>
+  </html>
