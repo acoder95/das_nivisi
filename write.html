@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پنل مدیریت تبلیغات</title>
+    <title>مدیریت تبلیغات</title>
     <style>
         body { font-family: Tahoma, sans-serif; background: #f0f2f5; padding: 20px; margin: 0; }
         .box { max-width: 600px; margin: auto; background: #fff; padding: 22px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -30,8 +30,8 @@
         .ad-item .menu button { display: block; width: 100%; padding: 10px 15px; background: none; border: none; text-align: right; cursor: pointer; font-size: 14px; font-family: inherit; }
         .ad-item .menu button:hover { background: #f5f5f5; }
         .ad-item .menu button.delete { color: #d32f2f; }
-        .expired-badge { background: #dc2626; color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 10px; margin-right: 6px; }
-        .active-badge { background: #16a34a; color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 10px; margin-right: 6px; }
+        .expired-badge { background: #dc2626; color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 10px; margin-left: 6px; }
+        .active-badge { background: #16a34a; color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 10px; margin-left: 6px; }
     </style>
 </head>
 <body>
@@ -72,7 +72,6 @@
     </div>
 
     <script>
-        // اینها مربوط به مخزن نمایش (نه این مخزن)
         const OWNER = 'acoder95';
         const REPO = 'das_nivisi';
         const ADS_FOLDER = 'ads';
@@ -100,8 +99,8 @@
             const description = document.getElementById('description').value.trim();
             const months = parseInt(document.getElementById('duration').value);
 
-            if (!token) { status.style.color = 'red'; return status.textContent = '❌ توکن را وارد کن.'; }
-            if (!name || !link) { status.style.color = 'red'; return status.textContent = '❌ نام و لینک الزامی است.'; }
+            if (!token) { status.style.color = 'red'; status.textContent = '❌ توکن را وارد کن.'; return; }
+            if (!name || !link) { status.style.color = 'red'; status.textContent = '❌ نام و لینک الزامی است.'; return; }
 
             btn.disabled = true;
             status.style.color = '#555';
@@ -109,39 +108,28 @@
 
             try {
                 const now = new Date();
-                let created, expires;
-
-                if (editingSha) {
-                    // در حالت ویرایش، تاریخ ایجاد و انقضا رو نگه می‌داریم مگر اینکه کاربر مدت رو تغییر بده
-                    const old = JSON.parse(sessionStorage.getItem('editing_ad') || '{}');
-                    created = old.created || now.toISOString();
-                    // انقضای جدید بر اساس مدت انتخابی از الان
-                    const newExpire = new Date(now.getTime() + months * 30 * 24 * 60 * 60 * 1000);
-                    expires = newExpire.toISOString();
-                } else {
-                    created = now.toISOString();
-                    expires = new Date(now.getTime() + months * 30 * 24 * 60 * 60 * 1000).toISOString();
-                }
+                const created = now.toISOString();
+                const expires = new Date(now.getTime() + months * 30 * 24 * 60 * 60 * 1000).toISOString();
 
                 const data = { name, link, description, created, expires, durationMonths: months };
                 const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
 
                 let filename, message;
                 if (editingSha) {
-                    filename = `${ADS_FOLDER}/${editingFilename}`;
-                    message = `ویرایش تبلیغ: ${name}`;
+                    filename = ADS_FOLDER + '/' + editingFilename;
+                    message = 'ویرایش تبلیغ: ' + name;
                 } else {
-                    filename = `${ADS_FOLDER/${Date.now()}.json`;
-                    message = `تبلیغ جدید: ${name}`;
+                    filename = ADS_FOLDER + '/' + Date.now() + '.json';
+                    message = 'تبلیغ جدید: ' + name;
                 }
 
-                const body = { message, content, branch: 'main' };
+                const body = { message: message, content: content, branch: 'main' };
                 if (editingSha) body.sha = editingSha;
 
-                const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${filename}`, {
+                const res = await fetch('https://api.github.com/repos/' + OWNER + '/' + REPO + '/contents/' + filename, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
+                        'Authorization': 'Bearer ' + token,
                         'Accept': 'application/vnd.github.v3+json',
                         'Content-Type': 'application/json'
                     },
@@ -150,21 +138,20 @@
 
                 if (res.ok) {
                     status.style.color = 'green';
-                    status.textContent = editingSha ? '✅ تغییرات ذخیره شد!' : '✅ تبلیغ مستقر شد! در لیست پایین می‌بینی.';
+                    status.textContent = editingSha ? '✅ تغییرات ذخیره شد!' : '✅ تبلیغ مستقر شد!';
                     document.getElementById('name').value = '';
                     document.getElementById('link').value = '';
                     document.getElementById('description').value = '';
-                    sessionStorage.removeItem('editing_ad');
                     resetEdit();
                     setTimeout(loadAds, 1500);
                 } else {
                     const err = await res.json();
                     status.style.color = 'red';
-                    status.textContent = `❌ خطا: ${err.message}`;
+                    status.textContent = '❌ خطا: ' + err.message;
                 }
             } catch (e) {
                 status.style.color = 'red';
-                status.textContent = `❌ خطای شبکه: ${e.message}`;
+                status.textContent = '❌ خطای شبکه: ' + e.message;
             } finally {
                 btn.disabled = false;
             }
@@ -173,27 +160,27 @@
         async function deleteAd(filename, name) {
             const token = tokenInput.value.trim();
             if (!token) { alert('برای حذف، ابتدا توکن را وارد کن.'); return; }
-            if (!confirm(`آیا مطمئنی تبلیغ «${name}» حذف شود؟`)) return;
+            if (!confirm('آیا مطمئنی تبلیغ «' + name + '» حذف شود؟')) return;
 
             const status = document.getElementById('status');
             status.style.color = '#555';
             status.textContent = '⏳ در حال حذف...';
 
             try {
-                const getRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${ADS_FOLDER}/${filename}`, {
-                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+                const getRes = await fetch('https://api.github.com/repos/' + OWNER + '/' + REPO + '/contents/' + ADS_FOLDER + '/' + filename, {
+                    headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json' }
                 });
                 if (!getRes.ok) throw new Error('فایل پیدا نشد');
                 const fileData = await getRes.json();
 
-                const delRes = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${ADS_FOLDER}/${filename}`, {
+                const delRes = await fetch('https://api.github.com/repos/' + OWNER + '/' + REPO + '/contents/' + ADS_FOLDER + '/' + filename, {
                     method: 'DELETE',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
+                        'Authorization': 'Bearer ' + token,
                         'Accept': 'application/vnd.github.v3+json',
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ message: `حذف تبلیغ: ${filename}`, sha: fileData.sha, branch: 'main' })
+                    body: JSON.stringify({ message: 'حذف تبلیغ: ' + filename, sha: fileData.sha, branch: 'main' })
                 });
 
                 if (delRes.ok) {
@@ -203,17 +190,17 @@
                 } else {
                     const err = await delRes.json();
                     status.style.color = 'red';
-                    status.textContent = `❌ خطا: ${err.message}`;
+                    status.textContent = '❌ خطا: ' + err.message;
                 }
             } catch (e) {
                 status.style.color = 'red';
-                status.textContent = `❌ خطا: ${e.message}`;
+                status.textContent = '❌ خطا: ' + e.message;
             }
         }
 
         async function editAd(filename) {
             try {
-                const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${ADS_FOLDER}/${filename}?t=` + Date.now());
+                const res = await fetch('https://api.github.com/repos/' + OWNER + '/' + REPO + '/contents/' + ADS_FOLDER + '/' + filename + '?t=' + Date.now());
                 if (!res.ok) throw new Error('خطا');
                 const fileData = await res.json();
                 const decoded = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g, ''))));
@@ -226,7 +213,6 @@
 
                 editingSha = fileData.sha;
                 editingFilename = filename;
-                sessionStorage.setItem('editing_ad', JSON.stringify(data));
                 document.getElementById('deployBtn').textContent = '💾 ذخیره تغییرات';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             } catch (e) {
@@ -237,8 +223,8 @@
         async function loadAds() {
             const listEl = document.getElementById('adsList');
             try {
-                const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${ADS_FOLDER}?t=` + Date.now());
-                if (!res.ok) throw new Error('خطا');
+                const res = await fetch('https://api.github.com/repos/' + OWNER + '/' + REPO + '/contents/' + ADS_FOLDER + '?t=' + Date.now());
+                if (!res.ok) throw new Error('خطا ' + res.status);
                 const files = await res.json();
                 const jsonFiles = files.filter(f => f.name.endsWith('.json'));
 
@@ -262,29 +248,31 @@
                 listEl.innerHTML = ads.map(a => {
                     const isExpired = new Date(a.expires).getTime() <= now;
                     const daysLeft = Math.ceil((new Date(a.expires).getTime() - now) / (1000 * 60 * 60 * 24));
-                    return `
-                        <div class="ad-item" data-filename="${escapeHtml(a.filename)}">
-                            <div class="info">
-                                <div class="ad-name">
-                                    ${isExpired ? '<span class="expired-badge">منقضی</span>' : '<span class="active-badge">فعال</span>'}
-                                    ${escapeHtml(a.name)}
-                                </div>
-                                <div class="ad-meta ${isExpired ? 'expired' : ''}">
-                                    ${isExpired ? 'منقضی شده' : daysLeft + ' روز باقی‌مانده'} — انقضا: ${new Date(a.expires).toLocaleDateString('fa-IR')}
-                                </div>
-                            </div>
-                            <button class="menu-btn">⋯</button>
-                            <div class="menu">
-                                <button class="edit-btn">✏️ ویرایش</button>
-                                <button class="delete-btn delete">🗑️ حذف</button>
-                            </div>
-                        </div>
-                    `;
+                    const safeName = escapeHtml(a.name);
+                    const safeFilename = escapeHtml(a.filename);
+                    return '<div class="ad-item" data-filename="' + safeFilename + '">' +
+                        '<div class="info">' +
+                            '<div class="ad-name">' +
+                                (isExpired ? '<span class="expired-badge">منقضی</span>' : '<span class="active-badge">فعال</span>') +
+                                safeName +
+                            '</div>' +
+                            '<div class="ad-meta' + (isExpired ? ' expired' : '') + '">' +
+                                (isExpired ? 'منقضی شده' : daysLeft + ' روز باقی‌مانده') +
+                                ' — انقضا: ' + new Date(a.expires).toLocaleDateString('fa-IR') +
+                            '</div>' +
+                        '</div>' +
+                        '<button class="menu-btn">⋯</button>' +
+                        '<div class="menu">' +
+                            '<button class="edit-btn">✏️ ویرایش</button>' +
+                            '<button class="delete-btn delete">🗑️ حذف</button>' +
+                        '</div>' +
+                    '</div>';
                 }).join('');
 
                 document.querySelectorAll('.ad-item').forEach(item => {
                     const filename = item.dataset.filename;
-                    const name = item.querySelector('.ad-name').textContent.trim();
+                    const nameEl = item.querySelector('.ad-name');
+                    const name = nameEl ? nameEl.textContent.trim() : '';
                     item.querySelector('.menu-btn').addEventListener('click', (e) => {
                         e.stopPropagation();
                         const menu = item.querySelector('.menu');
@@ -301,12 +289,14 @@
                     });
                 });
             } catch (e) {
-                listEl.innerHTML = '<p style="color:red;text-align:center;">خطا در بارگذاری.</p>';
+                listEl.innerHTML = '<p style="color:red;text-align:center;">خطا: ' + escapeHtml(e.message) + '</p>';
             }
         }
 
         function escapeHtml(str) {
-            return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+            return String(str).replace(/[&<>"']/g, function(c) {
+                return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+            });
         }
 
         document.addEventListener('click', () => {
