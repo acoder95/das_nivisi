@@ -139,9 +139,15 @@
                 if (res.ok) {
                     status.style.color = 'green';
                     status.textContent = editingSha ? '✅ تغییرات ذخیره شد!' : '✅ تبلیغ مستقر شد!';
+
+                    // پاک کردن کامل همه چیز
+                    document.getElementById('tokenInput').value = '';
                     document.getElementById('name').value = '';
                     document.getElementById('link').value = '';
                     document.getElementById('description').value = '';
+                    document.getElementById('duration').value = '1';
+                    localStorage.removeItem('gh_token');
+
                     resetEdit();
                     setTimeout(loadAds, 1500);
                 } else {
@@ -199,6 +205,9 @@
         }
 
         async function editAd(filename) {
+            const token = tokenInput.value.trim();
+            if (!token) { alert('برای ویرایش، ابتدا توکن را وارد کن.'); return; }
+
             try {
                 const res = await fetch('https://api.github.com/repos/' + OWNER + '/' + REPO + '/contents/' + ADS_FOLDER + '/' + filename + '?t=' + Date.now());
                 if (!res.ok) throw new Error('خطا');
@@ -306,4 +315,4 @@
         loadAds();
     </script>
 </body>
-                </html>
+</html>
