@@ -39,8 +39,8 @@
         <h2>📢 مدیریت تبلیغات</h2>
 
         <div class="token-box">
-            <label>توکن GitHub (فقط یک بار وارد کن):</label>
-            <input type="password" id="tokenInput" placeholder="github_pat_xxxxx" />
+            <label>توکن GitHub:</label>
+            <input type="password" id="tokenInput" placeholder="github_pat_xxxxx" autocomplete="off" />
         </div>
 
         <label>نام کانال / گروه:</label>
@@ -76,23 +76,19 @@
         const REPO = 'das_nivisi';
         const ADS_FOLDER = 'ads';
 
-        const tokenInput = document.getElementById('tokenInput');
-        const saved = localStorage.getItem('gh_token');
-        if (saved) tokenInput.value = saved;
-        tokenInput.addEventListener('change', () => localStorage.setItem('gh_token', tokenInput.value.trim()));
-
-        let editingSha = null;
-        let editingFilename = null;
-
         function resetEdit() {
             editingSha = null;
             editingFilename = null;
             document.getElementById('deployBtn').textContent = '🚀 استقرار تبلیغ';
         }
 
+        let editingSha = null;
+        let editingFilename = null;
+
         async function deploy() {
             const status = document.getElementById('status');
             const btn = document.getElementById('deployBtn');
+            const tokenInput = document.getElementById('tokenInput');
             const token = tokenInput.value.trim();
             const name = document.getElementById('name').value.trim();
             const link = document.getElementById('link').value.trim();
@@ -140,13 +136,12 @@
                     status.style.color = 'green';
                     status.textContent = editingSha ? '✅ تغییرات ذخیره شد!' : '✅ تبلیغ مستقر شد!';
 
-                    // پاک کردن کامل همه چیز
-                    document.getElementById('tokenInput').value = '';
+                    // پاک کردن همه فیلدها
+                    tokenInput.value = '';
                     document.getElementById('name').value = '';
                     document.getElementById('link').value = '';
                     document.getElementById('description').value = '';
                     document.getElementById('duration').value = '1';
-                    localStorage.removeItem('gh_token');
 
                     resetEdit();
                     setTimeout(loadAds, 1500);
@@ -164,7 +159,7 @@
         }
 
         async function deleteAd(filename, name) {
-            const token = tokenInput.value.trim();
+            const token = document.getElementById('tokenInput').value.trim();
             if (!token) { alert('برای حذف، ابتدا توکن را وارد کن.'); return; }
             if (!confirm('آیا مطمئنی تبلیغ «' + name + '» حذف شود؟')) return;
 
@@ -205,7 +200,7 @@
         }
 
         async function editAd(filename) {
-            const token = tokenInput.value.trim();
+            const token = document.getElementById('tokenInput').value.trim();
             if (!token) { alert('برای ویرایش، ابتدا توکن را وارد کن.'); return; }
 
             try {
